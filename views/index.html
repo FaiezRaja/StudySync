@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+    <head>
+        <title>Study Sync</title> <!--Browser tab title-->
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/dark-theme.css">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/index.css">
+
+        <script src="/scripts/dark-theme.js"></script>
+        <script src="/scripts/main.js"></script>
+
+        <link rel="manifest" href="/manifest.json">
+        <script type="module" src="https://cdn.jsdelivr.net/npm/pwa-install"></script>
+    </head>
+
+    <header class="header">
+        <a href="/" class="logo">StudySync</a>
+        <input class="menu-btn" type="checkbox" id="menu-btn" />
+        <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+        <ul class="menu">
+            <li><a href="/about">About</a></li>
+            <% if(user) { %>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/auth/logout">Logout</a></li>
+            <% } else { %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            <% } %>
+        </ul>
+    </header>
+
+    <body class="container">
+        <div id="createRooms-container">
+            <h1>Create Room</h1>
+            <input id="input-room-name" value="<%= randomRoomNameInput %>" readonly><br>
+            <label id="roomTypeCSS"><input type="radio" name="room-type" value="public"> Public</label>
+            <label id="roomTypeCSS"><input type="radio" name="room-type" value="private" checked> Private</label>
+            <button id="createRoomButton" onclick="createRoom()">Create Room</button><br>
+            <br>
+        </div>
+
+        <div id="joinRooms-container">
+            <h1>Join Room</h1>
+            <input id="joinRoom-input" placeholder="Enter Room Code Here"><br>
+            <button id="joinRoomButton" onclick="joinRoom()">Join Room</button><br>
+            <br>
+        </div>
+
+        <div id="publicRooms-container">
+            <h1>Public Rooms:</h1>
+            <script>
+                const rooms = '<%= rooms %>';
+                const roomsList = rooms.split(',');
+                const privateRooms = '<%= privateRooms %>';
+                const privateRoomsList = privateRooms.split(',');
+
+                function joinRoom() {
+                    var name = document.getElementById("joinRoom-input").value;
+                    if (name === "") {
+                        return;
+                    }
+                    else if (roomsList.includes(name) || privateRoomsList.includes(name)) {
+                        window.location.href = `/room?name=${name}`;
+                    } else {
+                        window.alert("Room does not exist");
+                        return;
+                    }
+                }
+
+                function createRoom(){
+                    var name = document.getElementById("input-room-name").value;
+                    var roomType = document.querySelector('input[name="room-type"]:checked').value;
+                    if (name === "") {
+                        return;
+                    }
+                    if (roomsList.includes(name) || privateRoomsList.includes(name)) {
+                        window.alert("Room already exists");
+                        return;}
+                    if (roomType === "public") {
+                        document.body.innerHTML += `<a href="/room?name=${name}">${name}</a><br>`;
+                        window.location.href = `/room?name=${name}`;
+                        httpGet(name, roomsList, "public");
+                    } else{
+                        window.location.href = `/room?name=${name}`;
+                        httpGet(name, privateRoomsList, "private");
+                    }
+                }
+                function httpGet(name, roomsList, roomType)
+                {
+                    if (!roomsList.includes(name)){
+                        var xmlHttp = new XMLHttpRequest();
+                        xmlHttp.open("GET", `/addRoom?name=${name}&type=${roomType}`, false);
+                        xmlHttp.send(null);
+                        return xmlHttp.responseText;
+                    }
+                    else {
+                        window.alert("Room already exists");
+                    }
+                }
+
+                const roomListContainer = document.createElement('div');
+                roomListContainer.id = 'roomListContainer';
+
+                for (const name of roomsList){
+                    if (name !== '') {
+                        const roomLink = document.createElement('a');
+                        roomLink.href = `/room?name=${name}`;
+                        roomLink.innerText = name;
+                        roomLink.classList.add('roomListA');
+                        roomListContainer.appendChild(roomLink);
+                        roomListContainer.appendChild(document.createElement('br'));
+                    }
+                }
+
+                if (roomListContainer.innerHTML === '') {
+                    const noRoomsAvailable = document.createElement('p');
+                    noRoomsAvailable.innerText = 'No public rooms available';
+                    roomListContainer.appendChild(noRoomsAvailable);
+                }
+                document.body.appendChild(roomListContainer);
+            </script>
+        </div>
+        <button id="themeButton" class="button" onclick="toggletheme()">Theme: Light | Dark</button>
+
+    </body>
+
+    <footer class="footerBottom">
+        <a href="/terms-and-conditions">Terms & Conditions</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/about">About</a>
+    </footer>
+
+</html>

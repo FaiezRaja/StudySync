@@ -1,0 +1,574 @@
+<html>
+  <head>
+    <!-- Name of the room is set as the tab title -->
+    <title>Room: <%= rooms %> - StudySync</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Links the CSS to the HTML-->
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/dark-theme.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/room.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!--Adds scripts to the HTML-->
+    <script src="/scripts/dark-theme.js"></script>
+    <script src="/scripts/rooms.js"></script>
+    <script src="/scripts/pdfobject.js"></script>
+  </head>
+  
+  <!-- Navigation Menu -->
+  <header class="header">
+    <a href="/" class="logo">StudySync</a> <!--Main text/logo that takes you to the homepage-->
+    <input class="menu-btn" type="checkbox" id="menu-btn" /> <!--Hamburger menu icon that can toggle the nav bar-->
+    <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label> <!--Label for hamburger menu icon-->
+    
+    <!-- Unordered list that contains the nav links -->
+    <ul class="menu">
+      <li><a href="/about">About</a></li>
+      <% if(user) { %>
+          <li><a href="/profile">Profile</a></li>
+          <li><a href="/auth/logout">Logout</a></li>
+      <% } else { %>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/register">Register</a></li>
+      <% } %>
+  </ul>
+  </header>
+  
+  <body>
+    <!-- Container for the room that includes a video player and a chat window -->
+    <div id="room-container">
+      <!-- Container for the video section -->
+      <div id="video-container" class="video-container">
+        <div id="video-tabs"> 
+          <button class="video-tab-button active" onclick="openVideoTab(event, 'video')">Video</button>
+          <button class="video-tab-button" onclick="openVideoTab(event, 'whiteboard')">Whiteboard</button>
+          <button class="video-tab-button" onclick="openVideoTab(event, 'webpage')">Web Page</button> <!-- Takes all users to the same web page -->
+          <button class="video-tab-button" onclick="openVideoTab(event, 'pdf')">PDF</button>
+        </div>
+        <div id="video-tab-content-video" class="video-tab-content active">
+          <video id="videoPlayer" controls> <!-- Video player element -->
+            <source src="your-video-file.mp4" type="video/mp4">
+            Your browser does not support the video element.
+          </video>
+          <button id="loadVideoButton">Load Video</button>  <!-- Load video file button -->
+          <input type="file" id="videoFileInput" accept="video/*">   <!-- Input that is used to select, but load video button does that job, hidden button, but still needed to make the load video work -->
+        </div>
+        
+        <div id="video-tab-content-whiteboard" class="video-tab-content">
+          <div id="whiteboard-container">
+            <canvas id="whiteboard-canvas"></canvas>
+          </div>
+            <button id="fullscreen-button">Fullscreen [ ]</button>
+        </div>
+
+        <div id="video-tab-content-webpage" class="video-tab-content">
+          <input type="text" id="iframe-link" placeholder="Enter a link">
+          <button onclick="updateIframe()">Submit</button>
+          <div id="iframe-container">
+            <iframe id="iframesync" style="height:100%;width:100%; overflow: scroll;"></iframe>
+          </div>
+        </div>
+
+        <div id="video-tab-content-pdf" class="video-tab-content">
+          <div id="pdf-container">
+            <div id="pdfinput-container">
+              <input type="file" id="pdfFileInput">
+              <button id="uploadPDFButton">Upload</button>
+            </div>
+          </div>
+          <div id="pdf-viewer">
+          </div>
+        </div>
+      </div>
+
+      <!--Container for the chat section-->
+      <div id="chat-container">
+        <div id="chat-header"> <!-- Header for the chat section which displays the name of the room -->
+          <h1><%= rooms %></h1>
+          <button onclick="copyClipboard()">Copy</button>
+        </div>
+
+        <!-- Tabs for different chats -->
+        <div id="chat-messages-container">
+          <div id="chat-tabs"> 
+            <button class="tab-button active" onclick="openTab(event, 'chat')">Chat</button>
+            <button class="tab-button" onclick="openTab(event, 'chatgpt')">ChatGPT</button>
+            <button class="tab-button" onclick="openTab(event, 'timer')">Timer</button>
+            <button class="tab-button" onclick="openTab(event, 'todolist')">To-Do List</button>
+          </div>
+          <!-- Chat window for the 'Chat' tab messages -->
+          <div id="chat-tab-content-chat" class="tab-content active"> <!-- Button for the 'Chat' tab which is active on page load, "chat-tab-content-" naming used to make JS neater -->
+            <ul id="messages"></ul>
+            <form id="form" action="">
+              <input id="input" autocomplete="off" placeholder="Enter your message here" />
+              <button type="submit"><i class="fa fa-paper-plane"></i></button>
+            </form>
+          </div>
+          <!-- Chat window for the 'ChatGPT' tab messages -->
+          <div id="chat-tab-content-chatgpt" class="tab-content">
+            <ul id="chatgpt"></ul>
+            <form id="chatgpt-form"> <!-- Form used to send ChatGPT messages -->
+              <input id="chatgpt-input" autocomplete="off" placeholder="Ask a question here" />
+              <button type="submit"><i class="fa fa-paper-plane"></i></button>
+            </form>
+          </div>
+          <!-- Timer window for.. the timer -->
+          <div id="chat-tab-content-timer" class="tab-content">
+            <div id="timer">
+              <label for="hours">Hours:</label>
+              <input type="number" id="hours" value="0">
+              <label for="minutes">Minutes:</label>
+              <input type="number" id="minutes" value="0">
+              <label for="seconds">Seconds:</label>
+              <input type="number" id="seconds" value="0">
+              <button id="startTimer" onclick="startTimer()">Start</button>
+            </div>
+            <div id="clock">00:00:00</div>
+          </div>
+
+          <div id="chat-tab-content-todolist" class="tab-content">
+            <div id="todoList">
+              <form id="todoForm">
+                <input id="todoInput" type="text" placeholder="Add a new task" autocomplete="off"/>
+                <button type="submit">Add Item</button>
+              </form>
+            </div>
+          </div>
+        </div>        
+      </div>
+    </div>
+
+    
+    <script src="/socket.io/socket.io.js"></script> <!-- Socket.IO library -->
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>  <!-- Canvas library for whiteboard -->
+
+    <script>
+      var socket = io(); //Connection to the Socket.IO server
+
+      //References to HTML elements
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+      var messages = document.getElementById('messages');
+      var videoFileInput = document.getElementById('videoFileInput');
+      var videoPlayer = document.getElementById('videoPlayer');
+      var loadVideoButton = document.getElementById('loadVideoButton');
+      const room = '<%= rooms %>';
+      
+      //Get name
+      '<% if (user && user.name) { %>'
+        username = "<%= user.name %>";
+      '<% } else { %>'
+        username = localStorage.getItem("username");
+        if (!username) {
+          username = prompt("Please enter your name:");
+          while (!username) {
+            username = prompt("Please enter your name:");
+          }
+          localStorage.setItem("username", username);
+        }
+      '<% } %>'
+
+      //Event listener for the message being submitted
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) { //If input box is not empty
+          socket.emit('chat message', {msg:username + ": " + input.value, room}); //Sends a 'chat message' event to the server, along with the messages and room name.
+          input.value = ''; //Clears the input message element atfer a message is sent
+          messages.scrollTop = messages.scrollHeight; //Scroll the chat window to the bottom to show the latest messages
+        }
+      });
+
+      loadVideoButton.addEventListener('click', function(e) {
+        videoFileInput.click(); //Brings up the file selection window
+      });
+      //Add an event listener for the 'change' event
+      videoFileInput.addEventListener('change', function(e) {
+        var file = this.files[0]; //Get the selected file from the input
+        if (file) { //If a file was selected
+          var fileURL = URL.createObjectURL(file); //Create a URL (location) for the file using the object URL API
+          videoPlayer.src = fileURL; //Set the source of the video player to the URL of the selected file
+          
+          socket.emit('video file', {file, room}); //Send a 'video file' event to the server, along with the file data
+        }
+      });
+
+      //Set the the 'lastTimestamp' variable to 0
+      let lastTimestamp = 0;
+
+      videoPlayer.addEventListener('play', function(e) {
+        //Send a 'video play' event to the server, along with the current time of the video and the room name
+        socket.emit('video play', {time: this.currentTime, room, timestamp: Date.now()});
+      });
+
+      videoPlayer.addEventListener('pause', function(e) {
+        //Send a 'video pause' event to the server, along with the current time of the video and the room name
+        socket.emit('video pause', {time: this.currentTime, room, timestamp: Date.now()});
+      });
+
+      videoPlayer.addEventListener('timeupdate', function(e) {
+        //Update the time of the video for all users if the timestamp is newer than the last one received
+        if (data.timestamp > lastTimestamp) {
+          videoPlayer.currentTime = data.time;
+          lastTimestamp = data.timestamp;
+        }
+      });
+
+      videoPlayer.addEventListener('seeking', function(e) {
+        //Send a 'video seek' event to the server, along with the current time of the video and the room name
+        socket.emit('video seek', {time: this.currentTime, room, timestamp: Date.now()});
+      });
+
+      socket.on('video seek', (data) => {
+        //Update the time of the video for all users if the timestamp is newer than the last one received
+        if (data.timestamp > lastTimestamp) {
+          videoPlayer.currentTime = data.time;
+          lastTimestamp = data.timestamp;
+        }
+      });
+
+      let isVideoPlaying = false;
+
+      socket.on('video time update', (data) => {
+        //Update the time of the video for all users
+        videoPlayer.currentTime = data.time;
+      });
+
+      socket.on('video pause', () => {
+        //Pause the video for all users
+        if (isVideoPlaying) {
+          isVideoPlaying = false;
+          videoPlayer.pause();
+        }
+      });
+      socket.on('video play', () => {
+        //Play the video for all users
+        if (!isVideoPlaying) {
+          isVideoPlaying = true;
+          videoPlayer.play();
+        }
+      });
+
+      socket.on('connect', () => {
+          socket.emit('join', {username, room});
+      })
+      socket.on('chat message', function(msg) {
+        var item = document.createElement('li'); //Create a new list item element to hold the message text
+        item.textContent = msg; //Set the text content of the list item to the message text
+        messages.appendChild(item); //Append the list item to the message list
+        messages.scrollTop = messages.scrollHeight; //Scroll the list of messages to the bottom
+      });
+
+      socket.on('video pause', () => {
+        //Pause the video for all clients
+        videoPlayer.pause();
+      });
+      socket.on('video play', () => {
+        //Play the video for all clients
+        videoPlayer.play();
+      });
+
+
+      //
+      //
+      //Timer
+      //
+      //
+
+      let timer;
+
+      function startTimer() {
+        
+        console.log('Starting timer')
+        const hours = parseInt(document.getElementById('hours').value);
+        const minutes = parseInt(document.getElementById('minutes').value);
+        const seconds = parseInt(document.getElementById('seconds').value);
+        
+        let totalTime = hours * 3600 + minutes * 60 + seconds;
+        let remainingTime = totalTime;
+          
+        clearInterval(timer);
+        timer = setInterval(function() {
+          if (remainingTime <= 0) {
+            clearInterval(timer);
+            document.getElementById('clock').innerHTML = '00:00:00';
+          } else {
+            let hours = Math.floor(remainingTime / 3600);
+            let minutes = Math.floor((remainingTime % 3600) / 60);
+            let seconds = remainingTime % 60;
+            
+            let clockText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('clock').innerHTML = clockText;
+            remainingTime--;
+          }
+        }, 1000);
+
+        socket.emit('start timer', {hours, minutes, seconds, room});
+      }
+
+      let countdownInterval; //Declare the variable outside the function to hold the interval ID
+
+      socket.on('timer update', (data) => {
+        if (data.endTime) {
+          //Calculate the remaining time
+          const remainingTime = Math.max(data.endTime - Date.now(), 0);
+          //Update the timer display with the remaining time
+          const hours = Math.floor(remainingTime / 3600000);
+          const minutes = Math.floor(remainingTime / 60000) % 60;
+          const seconds = Math.floor(remainingTime / 1000) % 60;
+          const clockText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          document.getElementById('clock').innerHTML = clockText;
+          
+          //Clear the previous interval before starting a new one
+          clearInterval(countdownInterval);
+
+          //Countdown the remaining time
+          countdownInterval = setInterval(() => {
+            const remainingTime = Math.max(data.endTime - Date.now(), 0);
+            const hours = Math.floor(remainingTime / 3600000);
+            const minutes = Math.floor((remainingTime % 3600000) / 60000);
+            const seconds = Math.floor((remainingTime % 60000) / 1000);
+            const clockText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('clock').innerHTML = clockText;
+
+            //Stop the countdown when the remaining time reaches 0
+            if (remainingTime <= 0) {
+              clearInterval(countdownInterval);
+            }
+          }, 1000);
+        }
+      });
+
+      //
+      //
+      //To-Do List
+      //
+      //
+      //Add references to new HTML elements
+      var todoForm = document.getElementById('todoForm');
+      var todoInput = document.getElementById('todoInput');
+      var todoList = document.getElementById('todoList');
+
+      //Add an event listener for the todo form submission
+      todoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (todoInput.value) {
+          //Emit 'add item' event to the server
+          socket.emit('add item', { item: todoInput.value, room });
+          todoInput.value = '';
+        }
+      });
+
+      //Function to add a new item to the list
+      function addItem(item) {
+        var li = document.createElement('li');
+        li.textContent = item;
+        li.addEventListener('click', function () {
+          //Emit 'remove item' event to the server when an item is clicked
+          socket.emit('remove item', { item: this.textContent, room });
+          this.remove();
+        });
+        todoList.appendChild(li);
+      }
+
+      //Listen for 'add item' event from the server
+      socket.on('add item', function (item) {
+        addItem(item);
+      });
+
+      //Listen for 'remove item' event from the server
+      socket.on('remove item', function (item) {
+        var listItems = todoList.getElementsByTagName('li');
+        for (var i = 0; i < listItems.length; i++) {
+          if (listItems[i].textContent === item) {
+            listItems[i].remove();
+            break;
+          }
+        }
+      });
+
+      //
+      //
+      //Web-page
+      //
+      //
+      /*function updateIframe() {
+        var link = document.getElementById("iframe-link").value;
+        document.getElementById("iframesync").setAttribute("src", link);
+      }*/
+      function updateIframe() {
+        var link = document.getElementById("iframe-link").value;
+        document.getElementById("iframesync").setAttribute("src", link);
+        
+        //Emit a 'update iframe' event to the server, along with the link and room name
+        socket.emit('update iframe', {link, room});
+      }
+
+      socket.on('update iframe', function(link) {
+        document.getElementById("iframesync").setAttribute("src", link);
+      });
+
+
+      //
+      //
+      //PDF
+      //
+      //
+      //Get the PDF file URL from the file input element
+      document.getElementById('uploadPDFButton').addEventListener('click', function() {
+        var file = document.getElementById('pdfFileInput').files[0];
+
+        // Create a FileReader object to read the file data
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = function() {
+          // Send the file data to the server using socket.io
+          socket.emit('pdf file', { file: reader.result, room }, function() {
+            // Embed the PDF file into the HTML page after the 'pdf file' event has been successfully emitted to the server
+            PDFObject.embed(reader.result, "#pdf-viewer");
+          });
+        };
+      });
+
+
+      socket.on('pdf file', function(data) {
+        // Get the PDF file data from the data object
+        var pdfData = data.file;
+        
+        // Embed the PDF file into the HTML page
+        PDFObject.embed(pdfData, "#pdf-viewer");
+      });
+
+
+      //Whiteboard
+      const canvasWrapper = document.getElementById('video-tab-content-whiteboard');
+      const canvas = document.getElementById('whiteboard-canvas');
+      const ctx = canvas.getContext('2d');
+
+      const scaleFactor = window.devicePixelRatio;
+
+      //Set the canvas size
+      canvas.width = 1920 * scaleFactor;
+      canvas.height = 1080 * scaleFactor;
+
+      //Set the CSS size
+      canvas.style.width = '1920px';
+      canvas.style.height = '1080px';
+
+      let isDrawing = false;
+      let lastX = 0;
+      let lastY = 0;
+      let scale = 1;
+
+      canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        //Adjust mouse coordinates using scale factor and current scale
+        [lastX, lastY] = [e.offsetX * scaleFactor / scale, e.offsetY * scaleFactor / scale];
+      });
+
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 5;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        //Adjust mouse coordinates using scale factor and current scale
+        ctx.moveTo(lastX * scale, lastY * scale);
+        ctx.lineTo(e.offsetX * scaleFactor / scale, e.offsetY * scaleFactor / scale);
+        ctx.stroke();
+        //Adjust mouse coordinates using scale factor and current scale
+        [lastX, lastY] = [e.offsetX * scaleFactor / scale, e.offsetY * scaleFactor / scale];
+
+        
+        socket.emit('draw line', {
+          x1: lastX * scale,
+          y1: lastY * scale,
+          x2: e.offsetX * scaleFactor / scale,
+          y2: e.offsetY * scaleFactor / scale,
+          color: 'black',
+          width: 5,
+          room,
+          lastPoint: [lastX * scale, lastY * scale]
+        });
+      });
+
+      canvas.addEventListener('mouseup', () => {
+        isDrawing = false;
+        clearInterval(emitTimer);
+        emitTimer = null;
+      });
+
+      canvas.addEventListener('mouseout', () => {
+        isDrawing = false;
+        clearInterval(emitTimer);
+        emitTimer = null;
+      });
+
+      const fullscreenButton = document.getElementById('fullscreen-button');
+
+      fullscreenButton.addEventListener('click', () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          canvasWrapper.requestFullscreen();
+        }
+      });
+
+      socket.on('draw line', function(data) {
+        //draw the received line
+        const { x1, y1, x2, y2, color, width, lastPoint } = data;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(lastPoint[0], lastPoint[1]);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      });
+
+    </script>
+
+    <!-- ChatGPT Chat -->
+    <script>
+      const chatgptForm = document.getElementById('chatgpt-form');
+      const chatgptInput = document.getElementById('chatgpt-input');
+      const chatgptMessages = document.getElementById('chatgpt');
+
+      chatgptForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (chatgptInput.value) { //Adapt socket.io chat code for chatgpt
+          const message = document.createElement('li'); //Create new list item element to hold user's message
+          message.textContent = `You: ${chatgptInput.value}`; //Set text content of list item to user's message
+          chatgptMessages.appendChild(message); //Append the list item to message list for ChatGPT tab
+          chatgptMessages.scrollTop = chatgptMessages.scrollHeight;
+
+          //Send request to server to get response using chatgpt
+          const response = await fetch('/chatgpt', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              prompt: chatgptInput.value
+            })
+          });
+
+          const data = await response.json(); //Parse response as JSON
+          const botMessage = document.createElement('li');
+          botMessage.textContent = `Bot: ${data.response}`;
+          chatgptMessages.appendChild(botMessage);
+          chatgptMessages.scrollTop = chatgptMessages.scrollHeight;
+          chatgptInput.value = ''; //Can't put this after the message is sent because the bot won't remember the question
+        }
+      });
+    </script>
+
+  </body>
+
+</html>

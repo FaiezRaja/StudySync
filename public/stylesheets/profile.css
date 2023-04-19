@@ -1,0 +1,10 @@
+.avatar-ctn {
+    background-color: green;
+    text-align: center;
+}
+
+.avatar {
+    border-radius: 50%;
+    width: 65%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}

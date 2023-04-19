@@ -1,0 +1,156 @@
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/dark-theme.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/room.css">
+
+    <script src="/scripts/dark-theme.js"></script>
+  </head>
+
+  <header>
+    <nav class="topnav" id="myTopnav">
+      <a href="/"><b>StudySync</b></a>
+      <a href="/about">About</a>
+      <a href="/login">Login</a>
+      <a href="/login">Login</a>
+      <a href="/login">Login</a>
+      <a href="/login">Login</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+          <i class="fa fa-bars"></i>
+      </a>
+    </nav>
+    <h1 style="display: inline">Room</h1>
+    <h1 style="display: inline", id="roomName" class="roomName"></h1>
+  </header>
+  
+  <body>
+    <button id="loadVideoButton">Load Video</button>
+    <input type="file" id="videoFileInput" accept="video/*">
+    <video id="videoPlayer" controls>
+      <source src="your-video-file.mp4" type="video/mp4">
+      Your browser does not support the video element.
+    </video>
+
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+      var messages = document.getElementById('messages');
+      var videoFileInput = document.getElementById('videoFileInput');
+      var videoPlayer = document.getElementById('videoPlayer');
+      var loadVideoButton = document.getElementById('loadVideoButton');
+    
+      const room = 'executive';
+      document.getElementById("roomName").innerHTML = room;
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('chat message', {msg:input.value, room});
+          input.value = '';
+        }
+      });
+
+      loadVideoButton.addEventListener('click', function(e) {
+        videoFileInput.click();
+      });
+      //Add an event listener for the 'change' event
+      videoFileInput.addEventListener('change', function(e) {
+        var file = this.files[0];
+        if (file) {
+          var fileURL = URL.createObjectURL(file);
+          videoPlayer.src = fileURL;
+          //Emit a 'video file' event to the server, along with the file data
+          socket.emit('video file', {file, room});
+        }
+      });
+
+      let lastTimestamp = 0;
+
+      videoPlayer.addEventListener('play', function(e) {
+        //Emit a 'video play' event to the server, along with the current time of the video and the room name
+        socket.emit('video play', {time: this.currentTime, room, timestamp: Date.now()});
+      });
+
+      videoPlayer.addEventListener('pause', function(e) {
+        //Emit a 'video pause' event to the server, along with the current time of the video and the room name
+        socket.emit('video pause', {time: this.currentTime, room, timestamp: Date.now()});
+      });
+
+      videoPlayer.addEventListener('timeupdate', function(e) {
+        //Update the time of the video for all clients if the timestamp is newer than the last one received
+        if (data.timestamp > lastTimestamp) {
+          videoPlayer.currentTime = data.time;
+          lastTimestamp = data.timestamp;
+        }
+      });
+
+      videoPlayer.addEventListener('seeking', function(e) {
+        //Emit a 'video seek' event to the server, along with the current time of the video and the room name
+        socket.emit('video seek', {time: this.currentTime, room, timestamp: Date.now()});
+      });
+
+      socket.on('video seek', (data) => {
+        //Update the time of the video for all clients if the timestamp is newer than the last one received
+        if (data.timestamp > lastTimestamp) {
+          videoPlayer.currentTime = data.time;
+          lastTimestamp = data.timestamp;
+        }
+      });
+
+      let isVideoPlaying = false;
+
+      socket.on('video time update', (data) => {
+        //Update the time of the video for all clients
+        videoPlayer.currentTime = data.time;
+      });
+
+      socket.on('video pause', () => {
+        //Pause the video for all clients
+        if (isVideoPlaying) {
+          isVideoPlaying = false;
+          videoPlayer.pause();
+        }
+      });
+      socket.on('video play', () => {
+        //Play the video for all clients
+        if (!isVideoPlaying) {
+          isVideoPlaying = true;
+          videoPlayer.play();
+        }
+      });
+
+      socket.on('connect', () => {
+          socket.emit('join', {room});
+      })
+      socket.on('chat message', function(msg) {
+          var item = document.createElement('li');
+          item.textContent = msg;
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on('video pause', () => {
+        //Pause the video for all clients
+        videoPlayer.pause();
+      });
+      socket.on('video play', () => {
+        //Play the video for all clients
+        videoPlayer.play();
+      });
+
+    </script>
+    
+  </body>
+</html>

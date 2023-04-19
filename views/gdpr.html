@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+    <head>
+        <title>Study Sync</title> <!--Browser tab title-->
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/dark-theme.css">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/gdpr.css">
+
+        <script src="/scripts/dark-theme.js"></script>
+        <script src="/scripts/main.js"></script>
+
+        <link rel="manifest" href="/manifest.json">
+        <script type="module" src="https://cdn.jsdelivr.net/npm/pwa-install"></script>
+    </head>
+
+    <header class="header">
+        <a href="/" class="logo">StudySync</a>
+        <input class="menu-btn" type="checkbox" id="menu-btn" />
+        <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+        <ul class="menu">
+            <li><a href="/about">About</a></li>
+            <% if(user) { %>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/auth/logout">Logout</a></li>
+            <% } else { %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            <% } %>
+        </ul>
+    </header>
+
+    <body class="container">
+        <h1>GDPR Privacy Policy</h1>
+        <h2>What data is collected?</h2>
+        <p>StudySync collects:</p>
+        <ul>
+            <li>Personal identifying information (name & email address)</li>
+        </ul>
+
+        <h2>How is your data collected?</h2>
+        <p>StudySync collects all the data directly from you. This is done when you:</p>
+        <ul>
+            <li>Create an account</li>
+            <li>View this website via your browser's cookies</li>
+        </ul>
+
+        <h2>How will your data be used?</h2>
+        <p>StudySync collects your data to:</p>
+        <ul>
+            <li>Add an name to your account which is used when joining a room</li>
+        </ul>
+
+        <h2>How will your data be stored? </h2>
+        <p>Your data will be stored in a secure MySQL database</p>
+
+        <h2>What are your Data Protection Rights?</h2>
+        <p><a href="https://ico.org.uk/global/privacy-notice/your-data-protection-rights/">You can find them here</a></p>
+
+        <h2>How do we use cookies?</h2>
+        <p>Information from you is collected through cookies (or similar technology) automatically when you use this website. This is done to:</p>
+        <p>
+        <ul>
+            <li>Keep you signed in</li>
+            <li>Remember your name when you join a room</li>
+        </ul>
+        
+        <h2>What types of cookies are used?</h2>
+        <p>StudySync uses:</p>
+        <ul>
+        <li>Strictly necessary cookies - cookies that are necessary for browsing the website and using its features, such as accessing secured areas of the site.</li>
+        <li>Functionality cookies - cookies which allow StudySync to remember the choices you have made previously (website theme such as light or dark mode)</li>
+        </ul>
+        
+        <h2>How to manage cookies</h2>
+        <p>You can set your browser not to accept cookies, but this website will not function without them</p>
+        
+        <h2>Changes to our privacy policy</h2>
+        <p>Our privacy policy is kept under regular review and any updates will be placed on this webpage. This privacy policy was last updated on 19th April 2023.</p>
+        
+        <h2>How to Contact Us:</h2>
+        <p>If you have any queries regarding StudySync's privacy policy or the data we may have collected from you, or if you wish to exercise your data protection rights, please feel free to contact us at <a href="mailto:MFR942@student.bham.ac.uk">MFR942@student.bham.ac.uk.</a></p>
+        
+        <h2>How to reach out to the relevant authority</h2>
+        <p>If you have a complaint or if you feel that GeoQuiz has not resolved your concern in a satisfactory way, you can contact the Information Commissioner's office by visiting this website: <a href="https://ico.org.uk/make-a-complaint/cookies/">Information Commissioner's Office.</a></p>
+        <br>
+        <br>
+    </body>
+
+</html>

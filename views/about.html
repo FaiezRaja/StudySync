@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+    <head>
+        <title>About</title> <!--Browser tab title-->
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/dark-theme.css">
+
+        <script src="/scripts/dark-theme.js"></script>
+    </head>
+
+    <header class="header">
+        <a href="/" class="logo">StudySync</a>
+        <input class="menu-btn" type="checkbox" id="menu-btn" />
+        <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+        <ul class="menu">
+            <li><a href="/about">About</a></li>
+            <% if(user) { %>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/auth/logout">Logout</a></li>
+            <% } else { %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            <% } %>
+        </ul>
+    </header>
+    
+    <body>
+        <h2>Contact here</h2>
+
+        <p>
+            This is a test paragraph
+        </p>
+
+        <p>
+            This is another <br> test paragraph
+        </p>
+
+        <a href="https://www.youtube.com/watch?v=vM-Bja2Gy04">Link </a>
+    </body>
+
+    <footer>
+        <a href="/terms-and-conditions">Terms & Conditions</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/about">About</a>
+
+    </footer>
+
+</html>
