@@ -38,6 +38,15 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
+//So the server does not shut down due to inactivity.
+setInterval(() => {
+  db.ping(err => {
+    if (err) {
+      console.error(err);
+    }
+  });
+}, 300000); //Pings every 5 mins
+
 //Connect to database
 db.connect((error) => {
     if (error) {
@@ -136,9 +145,13 @@ io.on('connect', (socket) => {
     io.to(data.room).emit('pdf file', { file: data.file });
   });  
 
-  socket.on('draw line', (data) => {
+  /*socket.on('draw line', (data) => {
     //Broadcast 'draw line' event to all other clients in the same room
     socket.to(data.room).emit('draw line', data);
+  });*/
+
+  socket.on('drawing', (data) => {
+    io.to(data.room).emit('drawing', data);
   });
 
 });

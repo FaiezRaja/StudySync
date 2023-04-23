@@ -1,2 +1,0 @@
-# mfr942
-StudySync

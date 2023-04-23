@@ -15,25 +15,26 @@
     <script src="/scripts/dark-theme.js"></script>
     <script src="/scripts/rooms.js"></script>
     <script src="/scripts/pdfobject.js"></script>
+
+    <audio id="timerAlarm" src="/sounds/timerAlarm.mp3"></audio>
   </head>
   
   <!-- Navigation Menu -->
   <header class="header">
-    <a href="/" class="logo">StudySync</a> <!--Main text/logo that takes you to the homepage-->
-    <input class="menu-btn" type="checkbox" id="menu-btn" /> <!--Hamburger menu icon that can toggle the nav bar-->
-    <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label> <!--Label for hamburger menu icon-->
-    
-    <!-- Unordered list that contains the nav links -->
+    <a href="/" class="logo">StudySync</a>
+    <input class="menu-btn" type="checkbox" id="menu-btn" />
+    <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
     <ul class="menu">
-      <li><a href="/about">About</a></li>
-      <% if(user) { %>
-          <li><a href="/profile">Profile</a></li>
-          <li><a href="/auth/logout">Logout</a></li>
-      <% } else { %>
-          <li><a href="/login">Login</a></li>
-          <li><a href="/register">Register</a></li>
-      <% } %>
-  </ul>
+        <li><a href="/about">About</a></li>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
+        <% if(user) { %>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/auth/logout">Logout</a></li>
+        <% } else { %>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+        <% } %>
+    </ul>
   </header>
   
   <body>
@@ -58,9 +59,18 @@
         
         <div id="video-tab-content-whiteboard" class="video-tab-content">
           <div id="whiteboard-container">
-            <canvas id="whiteboard-canvas"></canvas>
+            <canvas class="whiteboard" ></canvas>
+
+            <div class="colors">
+              <div class="color black"></div>
+              <div class="color red"></div>
+              <div class="color green"></div>
+              <br>
+              <div class="color white"></div>
+              <div class="color blue"></div>
+              <div class="color yellow"></div>
+            </div>
           </div>
-            <button id="fullscreen-button">Fullscreen [ ]</button>
         </div>
 
         <div id="video-tab-content-webpage" class="video-tab-content">
@@ -336,6 +346,7 @@
             //Stop the countdown when the remaining time reaches 0
             if (remainingTime <= 0) {
               clearInterval(countdownInterval);
+              document.getElementById('timerAlarm').play();
             }
           }, 1000);
         }
@@ -442,7 +453,7 @@
         PDFObject.embed(pdfData, "#pdf-viewer");
       });
 
-
+      /*
       //Whiteboard
       const canvasWrapper = document.getElementById('video-tab-content-whiteboard');
       const canvas = document.getElementById('whiteboard-canvas');
@@ -530,7 +541,129 @@
         ctx.moveTo(lastPoint[0], lastPoint[1]);
         ctx.lineTo(x2, y2);
         ctx.stroke();
-      });
+      });*/
+
+      var canvas = document.getElementsByClassName('whiteboard')[0];
+      var colors = document.getElementsByClassName('color');
+      var context = canvas.getContext('2d');
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      canvas.style.width = canvas.width + 'px';
+      canvas.style.height = canvas.height + 'px';
+
+      var current = {
+        x: 0,
+        y: 0,
+        color: 'black'
+      };
+      var drawing = false;
+
+      canvas.addEventListener('mousedown', onMouseDown, false);
+      canvas.addEventListener('mouseup', onMouseUp, false);
+      canvas.addEventListener('mouseout', onMouseUp, false);
+      canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+      
+      //Touch support for mobile devices
+      canvas.addEventListener('touchstart', onMouseDown, false);
+      canvas.addEventListener('touchend', onMouseUp, false);
+      canvas.addEventListener('touchcancel', onMouseUp, false);
+      canvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
+
+      for (var i = 0; i < colors.length; i++){
+        colors[i].addEventListener('click', onColorUpdate, false);
+      }
+
+      socket.on('drawing', onDrawingEvent);
+
+      /*window.addEventListener('resize', onResize, false);
+      onResize();*/
+
+
+      function drawLine(x0, y0, x1, y1, color, emit){
+        context.beginPath();
+        context.moveTo(x0, y0);
+        context.lineTo(x1, y1);
+        context.strokeStyle = color;
+        if (color == "white") {
+          context.lineWidth = 20;
+        }
+        else {
+          context.lineWidth = 2;
+        }
+        context.stroke();
+        context.closePath();
+
+        if (!emit) { return; }
+        var w = canvas.width;
+        var h = canvas.height;
+
+        socket.emit('drawing', {
+          x0: x0 / w,
+          y0: y0 / h,
+          x1: x1 / w,
+          y1: y1 / h,
+          color: color,
+          room
+        });
+      }
+
+      function onMouseDown(e){
+        drawing = true;
+        var rect = canvas.getBoundingClientRect();
+        current.x = (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width;
+        current.y = (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height;
+      }
+
+      function onMouseUp(e){
+        if (!drawing) { return; }
+        drawing = false;
+        current.x = 0;
+        current.y = 0;
+      }
+
+      function onMouseMove(e){
+        if (!drawing) { return; }
+        var rect = canvas.getBoundingClientRect();
+        if (current) {
+          drawLine(current.x, current.y, (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width, (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height, current.color, true);
+        }
+        current = {
+          x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+          y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height,
+          color: current.color
+        };
+      }
+
+      function onColorUpdate(e){
+        current.color = e.target.className.split(' ')[1];
+      }
+
+      // limit the number of events per second
+      function throttle(callback, delay) {
+        var previousCall = new Date().getTime();
+        return function() {
+          var time = new Date().getTime();
+
+          if ((time - previousCall) >= delay) {
+            previousCall = time;
+            callback.apply(null, arguments);
+          }
+        };
+      }
+
+      function onDrawingEvent(data){
+        var w = canvas.width;
+        var h = canvas.height;
+        drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+      }
+
+      function copyClipboard() {
+          var copyRoomLink = window.location.href;
+          navigator.clipboard.writeText(copyRoomLink);
+          alert("Room link copied to clipboard");
+      }
 
     </script>
 

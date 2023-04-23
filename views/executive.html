@@ -11,21 +11,22 @@
     <script src="/scripts/dark-theme.js"></script>
   </head>
 
-  <header>
-    <nav class="topnav" id="myTopnav">
-      <a href="/"><b>StudySync</b></a>
-      <a href="/about">About</a>
-      <a href="/login">Login</a>
-      <a href="/login">Login</a>
-      <a href="/login">Login</a>
-      <a href="/login">Login</a>
-      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-          <i class="fa fa-bars"></i>
-      </a>
-    </nav>
-    <h1 style="display: inline">Room</h1>
-    <h1 style="display: inline", id="roomName" class="roomName"></h1>
-  </header>
+  <header class="header">
+    <a href="/" class="logo">StudySync</a>
+    <input class="menu-btn" type="checkbox" id="menu-btn" />
+    <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+    <ul class="menu">
+        <li><a href="/about">About</a></li>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
+        <% if(user) { %>
+            <li><a href="/profile">Profile</a></li>
+            <li><a href="/auth/logout">Logout</a></li>
+        <% } else { %>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+        <% } %>
+    </ul>
+</header>
   
   <body>
     <button id="loadVideoButton">Load Video</button>

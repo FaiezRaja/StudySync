@@ -26,9 +26,3 @@ function openVideoTab(evt, tabName) {
     document.getElementById("video-tab-content-" + tabName).style.display = "block";
     evt.currentTarget.classList.add("active");
 }
-
-function copyClipboard() {
-    var copyRoomLink = window.location.href;
-    navigator.clipboard.writeText(copyRoomLink);
-    alert("Room link copied to clipboard: " + copyRoomLink);
-}

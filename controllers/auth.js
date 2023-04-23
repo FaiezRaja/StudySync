@@ -86,10 +86,9 @@ exports.register = (req, res) => {
                 console.log(error);
             } else {
                 console.log(results);
-                const message = 'User registered';
-                return res.render('register', {
-                message: message
-                });
+                // Log in the user automatically
+                req.body = {email, password};
+                exports.login(req, res);
             }
         })
         

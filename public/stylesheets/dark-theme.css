@@ -15,6 +15,10 @@
     --roomNameInput: #f2f2f2;
     --roomNameInputText: #808080;
     --createRoom-color: #000000;
+
+    /* rooms.html */
+    --tabHover-color: #ddd;
+    --tabActive-color: #ccc;
 }
 
 html[data-theme='light'] {
@@ -34,6 +38,10 @@ html[data-theme='light'] {
     --roomNameInput: #f2f2f2;
     --roomNameInputText: #808080;
     --createRoom-color: #000000;
+
+    /* rooms.html */
+    --tabHover-color: #ddd;
+    --tabActive-color: #ccc;
 }
 
 html[data-theme='dark'] {
@@ -48,9 +56,14 @@ html[data-theme='dark'] {
     --headerboxshadow-color: rgba(128,128,128,.1);
     --headerborder-color: #343536;
     --buttonborder-color: #343536;
+    --buttonborder-color: #343536;
 
     /* index.html */
     --roomNameInput: #0d0d0d;
     --roomNameInputText: #7f7f7f;
     --createRoom-color: #ffffff;
+
+    /* rooms.html */
+    --tabHover-color: #222222;
+    --tabActive-color: #333333;
 }
