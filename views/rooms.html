@@ -47,6 +47,7 @@
           <button class="video-tab-button" onclick="openVideoTab(event, 'whiteboard')">Whiteboard</button>
           <button class="video-tab-button" onclick="openVideoTab(event, 'webpage')">Web Page</button> <!-- Takes all users to the same web page -->
           <button class="video-tab-button" onclick="openVideoTab(event, 'pdf')">PDF</button>
+          <button class="video-tab-button" onclick="openVideoTab(event, 'videovoice')">Video/Voice</button>
         </div>
         <div id="video-tab-content-video" class="video-tab-content active">
           <video id="videoPlayer" controls> <!-- Video player element -->
@@ -91,6 +92,14 @@
           <div id="pdf-viewer">
           </div>
         </div>
+
+        <div id="video-tab-content-videovoice" class="video-tab-content">
+          <div id="iframeMic">
+            <div id="iframe-mic">
+              <button onclick="joinJitsi()">Join</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!--Container for the chat section-->
@@ -129,10 +138,13 @@
             <div id="timer">
               <label for="hours">Hours:</label>
               <input type="number" id="hours" value="0">
+              <br>
               <label for="minutes">Minutes:</label>
               <input type="number" id="minutes" value="0">
+              <br>
               <label for="seconds">Seconds:</label>
               <input type="number" id="seconds" value="0">
+              <br>
               <button id="startTimer" onclick="startTimer()">Start</button>
             </div>
             <div id="clock">00:00:00</div>
@@ -143,8 +155,12 @@
               <form id="todoForm">
                 <input id="todoInput" type="text" placeholder="Add a new task" autocomplete="off"/>
                 <button type="submit">Add Item</button>
+                <p>Click the item to remove it from the to-do list</p>
               </form>
             </div>
+          </div>
+          <div id="chat-tab-content-mic" class="tab-content">
+            
           </div>
         </div>        
       </div>
@@ -152,6 +168,7 @@
 
     
     <script src="/socket.io/socket.io.js"></script> <!-- Socket.IO library -->
+    <script src="https://meet.jit.si/external_api.js"></script>
    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>  <!-- Canvas library for whiteboard -->
 
@@ -181,6 +198,26 @@
         }
       '<% } %>'
 
+      //Voice and Video Chat
+      function joinJitsi() {
+        const domain = 'meet.jit.si'; // the domain of the Jitsi server
+        const options = {
+          roomName: 'StudySync' + room,
+          parentNode: document.querySelector('#iframe-mic'),
+          interfaceConfigOverwrite: {
+            // customize the interface here if needed
+          },
+          configOverwrite: {
+            // customize the configuration here if needed
+          },
+          userInfo: {
+            displayName: username // replace with the user's display name
+          },
+          startWithVideoMuted: true,
+          startWithAudioMuted: true
+        };
+        const api = new JitsiMeetExternalAPI(domain, options);
+      }
       //Event listener for the message being submitted
       form.addEventListener('submit', function(e) {
         e.preventDefault();
