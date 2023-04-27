@@ -128,7 +128,7 @@
   cursor: pointer;
   padding: 14px 12px;
   transition: 0.3s;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--text-color);
 }
 
@@ -214,6 +214,7 @@
   #video-container {
     height: calc(50vh - 70px);
     order: 1;
+    max-height: 50%;
   }
 
   /* The container for chat */
@@ -248,7 +249,7 @@
 
   /* The buttons for switching between chat tabs */
   .tab-button {
-    font-size: 14px;
+    font-size: 16px;
     padding: 10px;
   }
 
@@ -363,3 +364,9 @@ li {
 .color.blue { background-color: blue; }
 .color.yellow { background-color: yellow; }
 .color.white { background-color: white; }
+
+#iframe-mic {
+  max-height: 90%;
+  max-width: 100%;
+  height: 90%;
+}

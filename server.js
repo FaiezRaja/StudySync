@@ -38,19 +38,10 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-//So the server does not shut down due to inactivity.
-setInterval(() => {
-  db.ping(err => {
-    if (err) {
-      console.error(err);
-    }
-  });
-}, 300000); //Pings every 5 mins
-
 //Connect to database
-db.connect((error) => {
+db.ping((error, result) => {
     if (error) {
-      console.error(error);
+      console.log('Error pinging MySQL server:', err.message);
     } else {
       console.log('MySQL database connected successfully');
     }

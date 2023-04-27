@@ -47,7 +47,7 @@
           <button class="video-tab-button" onclick="openVideoTab(event, 'whiteboard')">Whiteboard</button>
           <button class="video-tab-button" onclick="openVideoTab(event, 'webpage')">Web Page</button> <!-- Takes all users to the same web page -->
           <button class="video-tab-button" onclick="openVideoTab(event, 'pdf')">PDF</button>
-          <button class="video-tab-button" onclick="openVideoTab(event, 'videovoice')">Video/Voice</button>
+          <button class="video-tab-button" onclick="openVideoTab(event, 'videovoice')">Call</button>
         </div>
         <div id="video-tab-content-video" class="video-tab-content active">
           <video id="videoPlayer" controls> <!-- Video player element -->
@@ -159,9 +159,6 @@
               </form>
             </div>
           </div>
-          <div id="chat-tab-content-mic" class="tab-content">
-            
-          </div>
         </div>        
       </div>
     </div>
@@ -200,24 +197,31 @@
 
       //Voice and Video Chat
       function joinJitsi() {
-        const domain = 'meet.jit.si'; // the domain of the Jitsi server
+        const domain = 'meet.jit.si';
         const options = {
           roomName: 'StudySync' + room,
           parentNode: document.querySelector('#iframe-mic'),
           interfaceConfigOverwrite: {
-            // customize the interface here if needed
+            TOOLBAR_BUTTONS: [
+              'microphone', 'camera', 'desktop', 'fullscreen', 'hangup'
+            ]
           },
           configOverwrite: {
-            // customize the configuration here if needed
+            hideConferenceSubject: true,
+            enableWelcomePage: false
           },
           userInfo: {
-            displayName: username // replace with the user's display name
+            displayName: username
           },
           startWithVideoMuted: true,
           startWithAudioMuted: false
         };
         const api = new JitsiMeetExternalAPI(domain, options);
+        api.on('readyToClose', () => {
+          window.location.replace(document.referrer);
+        });
       }
+
       //Event listener for the message being submitted
       form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -712,7 +716,7 @@
 
       chatgptForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (chatgptInput.value) { //Adapt socket.io chat code for chatgpt
+        if (chatgptInput.value) { 
           const message = document.createElement('li'); //Create new list item element to hold user's message
           message.textContent = `You: ${chatgptInput.value}`; //Set text content of list item to user's message
           chatgptMessages.appendChild(message); //Append the list item to message list for ChatGPT tab
@@ -734,7 +738,7 @@
           botMessage.textContent = `Bot: ${data.response}`;
           chatgptMessages.appendChild(botMessage);
           chatgptMessages.scrollTop = chatgptMessages.scrollHeight;
-          chatgptInput.value = ''; //Can't put this after the message is sent because the bot won't remember the question
+          chatgptInput.value = ''; //Can't put this before the message is sent because the bot won't remember the question
         }
       });
     </script>
