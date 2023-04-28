@@ -132,7 +132,7 @@ io.on('connect', (socket) => {
   });
 
   socket.on('pdf file', (data) => {
-    // Broadcast the PDF file data to all clients in the specified room
+    //Broadcast PDF file data to all clients in the specified room
     io.to(data.room).emit('pdf file', { file: data.file });
   });  
 
@@ -192,6 +192,6 @@ app.post('/chatgpt', async (req, res) => {
 });
 
 
-server.listen(3000, () => {
-  console.log('listening on *:3000');
+server.listen(4000, () => {
+  console.log('listening on *:4000');
 });

@@ -1,7 +1,7 @@
 <html>
   <head>
     <!-- Name of the room is set as the tab title -->
-    <title>Room: <%= rooms %> - StudySync</title>
+    <title>Room: <%= rooms %> - SyncLearn</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -21,7 +21,7 @@
   
   <!-- Navigation Menu -->
   <header class="header">
-    <a href="/" class="logo">StudySync</a>
+    <a href="/" class="logo">SyncLearn</a>
     <input class="menu-btn" type="checkbox" id="menu-btn" />
     <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
     <ul class="menu">
@@ -199,7 +199,7 @@
       function joinJitsi() {
         const domain = 'meet.jit.si';
         const options = {
-          roomName: 'StudySync' + room,
+          roomName: 'SyncLearn' + room,
           parentNode: document.querySelector('#iframe-mic'),
           interfaceConfigOverwrite: {
             TOOLBAR_BUTTONS: [
@@ -359,7 +359,7 @@
         socket.emit('start timer', {hours, minutes, seconds, room});
       }
 
-      let countdownInterval; //Declare the variable outside the function to hold the interval ID
+      let countdownInterval; //Declare the variable outside the function to hold the interval ID otherwise timer glitches.
 
       socket.on('timer update', (data) => {
         if (data.endTime) {
@@ -472,14 +472,14 @@
       document.getElementById('uploadPDFButton').addEventListener('click', function() {
         var file = document.getElementById('pdfFileInput').files[0];
 
-        // Create a FileReader object to read the file data
+        //Create a FileReader object to read the file data
         var reader = new FileReader();
         reader.readAsDataURL(file);
         
         reader.onload = function() {
-          // Send the file data to the server using socket.io
+          //Send the file data to the server using socket.io
           socket.emit('pdf file', { file: reader.result, room }, function() {
-            // Embed the PDF file into the HTML page after the 'pdf file' event has been successfully emitted to the server
+            //Embed the PDF file into the HTML page after the 'pdf file' event has been successfully emitted to the server
             PDFObject.embed(reader.result, "#pdf-viewer");
           });
         };

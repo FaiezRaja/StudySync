@@ -1,8 +1,8 @@
-DB_HOST =
-DB_USER =
-DB_PASSWORD =
-DB_PORT =
-DB_NAME =
-JWT_SECRET =
-JWT_EXPIRES_IN =
-JWT_COOKIE_EXPIRES =
+DB_HOST = db-mysql-nyc1-67735-do-user-13872507-0.b.db.ondigitalocean.com
+DB_USER = doadmin
+DB_PASSWORD = AVNS_3vLxbCuczI3mC7HV-ne
+DB_PORT = 25060
+DB_NAME = defaultdb
+JWT_SECRET = mysecretpassword
+JWT_EXPIRES_IN = 90d
+JWT_COOKIE_EXPIRES = 90
