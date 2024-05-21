@@ -1,8 +1,11 @@
 
-# SyncLearn - How to Run
+# SyncLearn - Final Year University Project
+Dissertation: [https://drive.google.com/file/d/1MlrYLo99QAOAK5mxXRJsTr5XQVNpONd5/view?usp=sharing](Google Drive Link)
+
+#How to Run
 
 #### How to run this project on your local machine.
-1. Clone the project from here [https://git.cs.bham.ac.uk/projects-2022-23/mfr942]()
+1. Clone the project from here [https://github.com/FaiezRaja/StudySync](GitHub Link)
 
 2. Then you need to install all the dependices that this project uses which can be done simply by entering this command
 ```
