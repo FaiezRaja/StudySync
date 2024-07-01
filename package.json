@@ -119,7 +119,7 @@
     "minimatch": "^3.1.2",
     "ms": "^2.0.0",
     "mysql": "^2.18.1",
-    "mysql2": "^3.1.0",
+    "mysql2": "^3.9.8",
     "negotiator": "^0.6.3",
     "neo-async": "^2.6.2",
     "node-releases": "^2.0.6",
